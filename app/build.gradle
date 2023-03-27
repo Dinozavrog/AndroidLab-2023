@@ -59,6 +59,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4"
 
     // region Network
     def retrofit = '2.9.0'
@@ -79,6 +80,12 @@ dependencies {
 
     //location
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    // region Mvvm
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.5.1"
+    implementation "androidx.fragment:fragment-ktx:1.5.5"
+    // endregion
 }
 
 detekt {

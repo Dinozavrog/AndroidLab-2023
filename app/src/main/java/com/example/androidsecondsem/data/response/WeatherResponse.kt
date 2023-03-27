@@ -26,7 +26,7 @@ data class WeatherResponse(
     @SerializedName("weather")
     val weather: List<Weather>,
     @SerializedName("wind")
-    val wind: Wind
+    val wind: Wind,
 )
 
 data class Weather(

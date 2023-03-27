@@ -1,4 +1,4 @@
-package com.example.androidsecondsem.utils
+package com.example.androidsecondsem.presentation.utils
 
 import android.content.Context
 import android.view.View
