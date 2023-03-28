@@ -1,4 +1,4 @@
-package com.example.androidsecondsem.data.response
+package com.example.androidsecondsem.data.weather.response
 
 import com.google.gson.annotations.SerializedName
 

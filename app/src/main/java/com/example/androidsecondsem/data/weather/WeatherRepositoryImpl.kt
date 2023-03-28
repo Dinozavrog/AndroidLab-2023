@@ -1,8 +1,8 @@
 package com.example.androidsecondsem.data.weather
 
 import com.example.androidsecondsem.domain.weather.model.WeatherInfo
-import com.example.androidsecondsem.data.response.City
-import com.example.androidsecondsem.data.response.WeatherApi
+import com.example.androidsecondsem.data.weather.response.City
+import com.example.androidsecondsem.data.weather.response.WeatherApi
 import com.example.androidsecondsem.domain.weather.model.CitiesListInfo
 import com.example.androidsecondsem.domain.weather.repository.WeatherRepository
 

@@ -14,12 +14,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.androidsecondsem.R
-import com.example.androidsecondsem.data.response.WeatherResponse
+import com.example.androidsecondsem.data.weather.response.WeatherResponse
 import com.example.androidsecondsem.presentation.fragments.viewModel.SearchViewModel
 import com.example.androidsecondsem.databinding.FragmentSearchBinding
 import com.example.androidsecondsem.presentation.recycler.CityAdapter
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class SearchFragment : Fragment(R.layout.fragment_search) {
 
@@ -118,7 +117,6 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             citiesList.observe(viewLifecycleOwner) {
                 if (it == null) return@observe
                 citiesListValue = it
-                Timber.e("Залупа ебанная" + citiesListValue.toString())
                 setListAdapterConfig()
             }
             location.observe(viewLifecycleOwner) {
@@ -136,7 +134,6 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     }
 
     private fun setListAdapterConfig() {
-        Timber.e("жопа")
         binding?.rvTaro?.adapter = adapter
         adapter?.submitList(citiesListValue)
 

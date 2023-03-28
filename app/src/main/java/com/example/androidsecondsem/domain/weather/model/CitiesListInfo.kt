@@ -1,6 +1,6 @@
 package com.example.androidsecondsem.domain.weather.model
 
-import com.example.androidsecondsem.data.response.WeatherResponse
+import com.example.androidsecondsem.data.weather.response.WeatherResponse
 
 data class CitiesListInfo(
     val cod: String?,

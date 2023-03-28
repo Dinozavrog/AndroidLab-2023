@@ -1,4 +1,4 @@
-package com.example.androidsecondsem.data.response
+package com.example.androidsecondsem.data.weather.response
 
 import retrofit2.http.GET
 import retrofit2.http.Query

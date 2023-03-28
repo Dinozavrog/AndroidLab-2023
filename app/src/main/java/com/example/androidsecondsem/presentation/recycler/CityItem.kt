@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.androidsecondsem.R
-import com.example.androidsecondsem.data.response.WeatherResponse
+import com.example.androidsecondsem.data.weather.response.WeatherResponse
 import com.example.androidsecondsem.databinding.ItemCityBinding
 
 class CityItem(

@@ -2,8 +2,8 @@ package com.example.androidsecondsem.presentation.fragments.viewModel
 
 import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.androidsecondsem.data.response.WeatherResponse
-import com.example.androidsecondsem.data.response.Container
+import com.example.androidsecondsem.data.weather.response.WeatherResponse
+import com.example.androidsecondsem.data.weather.response.Container
 import com.example.androidsecondsem.domain.location.model.UserLocationModel
 import com.example.androidsecondsem.domain.weather.model.WeatherInfo
 import com.example.androidsecondsem.domain.weather.useCase.GetCitiesUseCase
