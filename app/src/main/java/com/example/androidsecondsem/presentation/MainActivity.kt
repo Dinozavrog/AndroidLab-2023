@@ -1,9 +1,10 @@
-package com.example.androidsecondsem.ui
+package com.example.androidsecondsem.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.androidsecondsem.R
 import com.example.androidsecondsem.databinding.ActivityMainBinding
+import com.example.androidsecondsem.presentation.fragments.SearchFragment
 
 class MainActivity : AppCompatActivity() {
 

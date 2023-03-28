@@ -1,4 +1,4 @@
-package com.example.androidsecondsem.data.response
+package com.example.androidsecondsem.data.weather.response
 
 import com.google.gson.annotations.SerializedName
 
@@ -26,7 +26,7 @@ data class WeatherResponse(
     @SerializedName("weather")
     val weather: List<Weather>,
     @SerializedName("wind")
-    val wind: Wind
+    val wind: Wind,
 )
 
 data class Weather(

@@ -1,4 +1,4 @@
-package com.example.androidsecondsem.utils
+package com.example.androidsecondsem.presentation.utils
 
 class WindConverter(private val digit: Int) {
 
