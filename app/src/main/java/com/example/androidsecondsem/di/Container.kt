@@ -1,4 +1,4 @@
-package com.example.androidsecondsem.data.weather.response
+package com.example.androidsecondsem.di
 
 import android.content.Context
 import com.example.androidsecondsem.BuildConfig
@@ -9,6 +9,7 @@ import com.example.androidsecondsem.data.weather.WeatherRepositoryImpl
 import com.example.androidsecondsem.data.interceptor.ApiKeyInterceptor
 import com.example.androidsecondsem.data.interceptor.UnitsInterceptor
 import com.example.androidsecondsem.data.location.LocationDataSource
+import com.example.androidsecondsem.data.weather.response.WeatherApi
 import com.example.androidsecondsem.domain.location.useCase.GetLocationUseCase
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices

@@ -2,6 +2,7 @@ package com.example.androidsecondsem.presentation.fragments
 
 import android.os.Bundle
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.fragment.app.Fragment
@@ -17,8 +18,14 @@ import com.example.androidsecondsem.R
 import com.example.androidsecondsem.data.weather.response.WeatherResponse
 import com.example.androidsecondsem.presentation.fragments.viewModel.SearchViewModel
 import com.example.androidsecondsem.databinding.FragmentSearchBinding
+import com.example.androidsecondsem.domain.location.useCase.GetLocationUseCase
+import com.example.androidsecondsem.domain.weather.useCase.GetCitiesUseCase
+import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByIdUseCase
+import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByNameUseCase
 import com.example.androidsecondsem.presentation.recycler.CityAdapter
+import com.example.androidsecondsem.presentation.utils.App
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class SearchFragment : Fragment(R.layout.fragment_search) {
 
@@ -26,9 +33,28 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     private var adapter: CityAdapter? = null
     private var citiesListValue: List<WeatherResponse?>? = null
 
+    @Inject
+    lateinit var getWeatherByNameUseCase: GetWeatherByNameUseCase
+
+    @Inject
+    lateinit var getWeatherByIdUseCase: GetWeatherByIdUseCase
+
+    @Inject
+    lateinit var getCitiesUseCase: GetCitiesUseCase
+
+    @Inject
+    lateinit var getLocationUseCase: GetLocationUseCase
+
     private val viewModel: SearchViewModel by viewModels {
-        SearchViewModel.Factory
+        SearchViewModel.provideFactory(
+            getWeatherByIdUseCase,
+            getCitiesUseCase,
+            getLocationUseCase,
+            getWeatherByNameUseCase)
     }
+
+    @Inject
+    lateinit var useCase: GetWeatherByNameUseCase
 
     @RequiresApi(Build.VERSION_CODES.N)
     val locationPermissionRequest = registerForActivityResult(
@@ -51,6 +77,11 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                 }
             }
         }
+    }
+
+    override fun onAttach(context: Context) {
+        App.appComponent.injectSearchFragment(this)
+        super.onAttach(context)
     }
 
 

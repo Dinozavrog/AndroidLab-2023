@@ -1,5 +1,6 @@
 package com.example.androidsecondsem.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -10,16 +11,26 @@ import com.example.androidsecondsem.presentation.fragments.viewModel.MainViewMod
 import com.example.androidsecondsem.R
 import com.example.androidsecondsem.databinding.FragmentCityBinding
 import com.example.androidsecondsem.domain.weather.model.WeatherInfo
+import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByIdUseCase
+import com.example.androidsecondsem.presentation.utils.App
 import com.example.androidsecondsem.presentation.utils.WindConverter
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import javax.inject.Inject
 
 class CityFragment : Fragment(R.layout.fragment_city) {
 
     private var binding: FragmentCityBinding? = null
     private var windConverter: WindConverter? = null
+
+    @Inject
+    lateinit var getWeatherByIdUseCase: GetWeatherByIdUseCase
     private val viewModel: MainViewModel by viewModels {
-        MainViewModel.Factory
+        MainViewModel.provideFactory(getWeatherByIdUseCase)
+    }
+
+    override fun onAttach(context: Context) {
+        App.appComponent.injectCityFragment(this)
+        super.onAttach(context)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -27,7 +38,6 @@ class CityFragment : Fragment(R.layout.fragment_city) {
 
         binding = FragmentCityBinding.bind(view)
         val cityId = arguments?.getInt("CITY_ID")
-        Timber.e(cityId.toString())
         if (cityId != null) {
             getCityWeather(cityId.toString())
         }

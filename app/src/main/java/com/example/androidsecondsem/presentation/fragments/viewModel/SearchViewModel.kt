@@ -1,9 +1,9 @@
 package com.example.androidsecondsem.presentation.fragments.viewModel
 
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.androidsecondsem.data.weather.response.WeatherResponse
-import com.example.androidsecondsem.data.weather.response.Container
 import com.example.androidsecondsem.domain.location.model.UserLocationModel
 import com.example.androidsecondsem.domain.weather.model.WeatherInfo
 import com.example.androidsecondsem.domain.weather.useCase.GetCitiesUseCase
@@ -82,21 +82,18 @@ class SearchViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
-            ): T {
-                val getWeatherByIdUseCase = Container.weatherByIdUseCase
-                val getCitiesUseCase = Container.getCities
-                val getLocationUseCase = Container.locationUseCase
-                val getWeatherByNameUseCase = Container.weatherByNameUseName
-                return SearchViewModel(
+        fun provideFactory(
+            getWeatherByIdUseCase: GetWeatherByIdUseCase,
+            getCitiesUseCase: GetCitiesUseCase,
+            getLocationUseCase: GetLocationUseCase,
+            getWeatherByNameUseCase: GetWeatherByNameUseCase
+        ): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                SearchViewModel(
                     getWeatherByIdUseCase,
                     getLocationUseCase,
                     getCitiesUseCase,
-                    getWeatherByNameUseCase) as T
+                    getWeatherByNameUseCase)
             }
         }
     }

@@ -1,8 +1,8 @@
 package com.example.androidsecondsem.presentation.fragments.viewModel
 
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.androidsecondsem.data.weather.response.Container
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.androidsecondsem.domain.weather.model.WeatherInfo
 import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByIdUseCase
 
@@ -19,16 +19,11 @@ class MainViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
-            ): T {
-                val getWeatherByIdUseCase = Container.weatherByIdUseCase
-                return MainViewModel(
-                    getWeatherByIdUseCase,
-                    ) as T
+        fun provideFactory(
+            getWeatherByIdUseCase: GetWeatherByIdUseCase
+        ): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                MainViewModel(getWeatherByIdUseCase)
             }
         }
     }
