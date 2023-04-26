@@ -5,25 +5,37 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.androidsecondsem.domain.weather.model.WeatherInfo
 import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByIdUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
-class MainViewModel(
-    private val getWeatherByIdUseCase: GetWeatherByIdUseCase,
+class MainViewModel @AssistedInject constructor(
+    @Assisted private val getWeatherByIdUseCase: GetWeatherByIdUseCase,
+    @Assisted private val id: String
 ) : ViewModel() {
 
     private val _weatherInfo = MutableLiveData<WeatherInfo?>(null)
     val weatherInfo: LiveData<WeatherInfo?>
         get() = _weatherInfo
 
-    suspend fun loadWeather(id: String){
+    suspend fun loadWeather(){
         _weatherInfo.value = getWeatherByIdUseCase(id)
+    }
+
+    @AssistedFactory
+    interface MainViewModelFactory {
+        fun create(getWeatherByIdUseCase: GetWeatherByIdUseCase, id: String?) :
+                MainViewModel
     }
 
     companion object {
         fun provideFactory(
-            getWeatherByIdUseCase: GetWeatherByIdUseCase
+            getWeatherByIdUseCase: GetWeatherByIdUseCase,
+            assistedFactory: MainViewModelFactory,
+            id: String?
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                MainViewModel(getWeatherByIdUseCase)
+                assistedFactory.create(getWeatherByIdUseCase, id)
             }
         }
     }

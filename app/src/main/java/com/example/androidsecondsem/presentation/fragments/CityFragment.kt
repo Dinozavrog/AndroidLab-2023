@@ -1,10 +1,9 @@
 package com.example.androidsecondsem.presentation.fragments
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.androidsecondsem.presentation.fragments.viewModel.MainViewModel
@@ -12,11 +11,12 @@ import com.example.androidsecondsem.R
 import com.example.androidsecondsem.databinding.FragmentCityBinding
 import com.example.androidsecondsem.domain.weather.model.WeatherInfo
 import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByIdUseCase
-import com.example.androidsecondsem.presentation.utils.App
 import com.example.androidsecondsem.presentation.utils.WindConverter
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class CityFragment : Fragment(R.layout.fragment_city) {
 
     private var binding: FragmentCityBinding? = null
@@ -24,34 +24,30 @@ class CityFragment : Fragment(R.layout.fragment_city) {
 
     @Inject
     lateinit var getWeatherByIdUseCase: GetWeatherByIdUseCase
+
+    @Inject
+    lateinit var cityViewModelFactory:
+            MainViewModel.MainViewModelFactory
+
     private val viewModel: MainViewModel by viewModels {
-        MainViewModel.provideFactory(getWeatherByIdUseCase)
+        MainViewModel.provideFactory(
+            getWeatherByIdUseCase,
+            cityViewModelFactory,
+            arguments?.getInt("CITY_ID").toString())
     }
 
-    override fun onAttach(context: Context) {
-        App.appComponent.injectCityFragment(this)
-        super.onAttach(context)
-    }
-
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding = FragmentCityBinding.bind(view)
-        val cityId = arguments?.getInt("CITY_ID")
-        if (cityId != null) {
-            getCityWeather(cityId.toString())
-        }
+        getCityWeather()
         observeViewModel()
     }
 
-
-    private fun showError(error: Throwable) {
-        Toast.makeText(this.requireContext(), error.message ?: "Error", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun getCityWeather(id: String) {
+    private fun getCityWeather() {
         lifecycleScope.launch {
-            viewModel.loadWeather(id)
+            viewModel.loadWeather()
         }
     }
 

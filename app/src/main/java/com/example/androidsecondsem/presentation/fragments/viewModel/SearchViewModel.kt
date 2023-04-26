@@ -1,5 +1,6 @@
 package com.example.androidsecondsem.presentation.fragments.viewModel
 
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -8,12 +9,13 @@ import com.example.androidsecondsem.domain.location.model.UserLocationModel
 import com.example.androidsecondsem.domain.weather.model.WeatherInfo
 import com.example.androidsecondsem.domain.weather.useCase.GetCitiesUseCase
 import com.example.androidsecondsem.domain.location.useCase.GetLocationUseCase
-import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByIdUseCase
 import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByNameUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SearchViewModel(
-    private val getWeatherByIdUseCase: GetWeatherByIdUseCase,
+@HiltViewModel
+class SearchViewModel @Inject constructor(
     private val getLocationUseCase: GetLocationUseCase,
     private val getCitiesUseCase: GetCitiesUseCase,
     private val getWeatherByNameUseCase: GetWeatherByNameUseCase
@@ -40,7 +42,7 @@ class SearchViewModel(
         get() = _navigation
 
     fun onWeatherClick(weatherResponse: WeatherResponse) {
-        val cityId: Int? = weatherResponse.id
+        val cityId: Int = weatherResponse.id
         if (cityId != null) {
             _navigation.value = cityId
         }
@@ -75,6 +77,7 @@ class SearchViewModel(
 
     suspend fun getCities(latitude: Double?, longitude: Double?) {
         _citiesList.value = getCitiesUseCase.invoke(latitude, longitude).list
+        Log.e("location", latitude.toString())
     }
 
     override fun onCleared() {
@@ -83,14 +86,12 @@ class SearchViewModel(
 
     companion object {
         fun provideFactory(
-            getWeatherByIdUseCase: GetWeatherByIdUseCase,
             getCitiesUseCase: GetCitiesUseCase,
             getLocationUseCase: GetLocationUseCase,
             getWeatherByNameUseCase: GetWeatherByNameUseCase
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 SearchViewModel(
-                    getWeatherByIdUseCase,
                     getLocationUseCase,
                     getCitiesUseCase,
                     getWeatherByNameUseCase)

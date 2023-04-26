@@ -1,26 +1,25 @@
 package com.example.androidsecondsem.di
 
+import android.app.Application
 import android.content.Context
 import com.example.androidsecondsem.presentation.fragments.CityFragment
 import com.example.androidsecondsem.presentation.fragments.SearchFragment
-import dagger.BindsInstance
-import dagger.Component
-import javax.inject.Singleton
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
-@Component(modules = [WeatherModule::class, NetworkModule::class, LocationModule::class])
-@Singleton
-interface AppComponent {
+@Module
+@InstallIn(SingletonComponent::class)
+class AppComponent {
 
-    fun injectSearchFragment(searchFragment: SearchFragment)
+    @Provides
+    fun provideContext(app:Application): Context = app.applicationContext
 
-    fun injectCityFragment(cityFragment: CityFragment)
+    @Provides
+    fun provideSearchFragment(): SearchFragment = SearchFragment()
 
-    @Component.Builder
-    interface Builder {
+    @Provides
+    fun provideCityFragment(): CityFragment = CityFragment()
 
-        @BindsInstance
-        fun context(context: Context): Builder
-
-        fun build(): AppComponent
-    }
 }

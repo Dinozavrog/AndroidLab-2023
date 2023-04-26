@@ -8,8 +8,11 @@ import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByIdUseCase
 import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByNameUseCase
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
 @Module
+@InstallIn(SingletonComponent::class)
 class WeatherModule {
 
     @Provides
