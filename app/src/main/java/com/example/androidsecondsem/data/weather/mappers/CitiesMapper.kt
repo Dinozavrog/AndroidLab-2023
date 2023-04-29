@@ -1,4 +1,4 @@
-package com.example.androidsecondsem.data.weather
+package com.example.androidsecondsem.data.weather.mappers
 
 import com.example.androidsecondsem.data.weather.response.CitiesResponse
 import com.example.androidsecondsem.domain.weather.model.CitiesListInfo

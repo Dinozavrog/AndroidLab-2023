@@ -20,7 +20,16 @@ import com.example.androidsecondsem.presentation.fragments.viewModel.SearchViewM
 import com.example.androidsecondsem.databinding.FragmentSearchBinding
 import com.example.androidsecondsem.presentation.recycler.CityAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Flowables
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class SearchFragment : Fragment(R.layout.fragment_search) {
@@ -28,6 +37,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     private var binding: FragmentSearchBinding? = null
     private var adapter: CityAdapter? = null
     private var citiesListValue: List<WeatherResponse?>? = null
+    private var searchDisposable: Disposable? = null
 
     private val viewModel: SearchViewModel by viewModels()
 
@@ -37,23 +47,25 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     ) { permissions ->
         when {
             permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                lifecycleScope.launch{
-                    viewModel.locationPerm(true)
-                }
+                Single.fromCallable { viewModel.locationPerm(true) }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe()
             }
             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                lifecycleScope.launch{
-                    viewModel.locationPerm(true)
-                }
+                Single.fromCallable { viewModel.locationPerm(true) }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe()
             }
             else -> {
-                lifecycleScope.launch{
-                    viewModel.locationPerm(false)
-                }
+                Single.fromCallable { viewModel.locationPerm(false) }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe()
             }
         }
     }
-
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -82,25 +94,23 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             )
             return
         } else {
-            lifecycleScope.launch {
-                viewModel.locationPerm(true)
-            }
+            Single.fromCallable { viewModel.locationPerm(true) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
         }
 
         binding?.run {
-            swCity.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
-                androidx.appcompat.widget.SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    if (query.isNotEmpty()) {
-                        viewModel.loadWeather(query)
-                    }
-                    return false
-                }
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    return false
-                }
-            })
+            searchDisposable = observeQuery()
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .distinctUntilChanged()
+                .subscribeBy(onNext = {
+                    Timber.e(it)
+                    viewModel.loadWeather(it)
+                }, onError = {
+                    Timber.e(it)
+                })
         }
     }
     private fun navigateToCityFragment(cityId: Int?) {
@@ -138,9 +148,23 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     private fun setListAdapterConfig() {
         binding?.rvTaro?.adapter = adapter
         adapter?.submitList(citiesListValue)
-        Log.e("tag", "tag")
-
     }
+
+    private fun observeQuery() =
+        Flowables.create(mode = BackpressureStrategy.LATEST) { emitter ->
+            binding?.swCity?.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
+                androidx.appcompat.widget.SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    if (newText?.length.toString().toInt()  > 1)
+                        emitter.onNext(newText ?: "")
+                    return false
+                }
+            })
+        }
 
     companion object {
         const val SEARCH_FRAGMENT_TAG = "SEARCH_FRAGMENT_TAG"
@@ -152,8 +176,15 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             }
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding?.swCity?.setQuery("", false)
+        binding?.swCity?.clearFocus()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
+        searchDisposable?.dispose()
     }
 }

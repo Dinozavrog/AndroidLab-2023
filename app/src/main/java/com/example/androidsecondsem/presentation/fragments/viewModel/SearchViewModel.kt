@@ -1,6 +1,5 @@
 package com.example.androidsecondsem.presentation.fragments.viewModel
 
-import android.util.Log
 import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -11,7 +10,10 @@ import com.example.androidsecondsem.domain.weather.useCase.GetCitiesUseCase
 import com.example.androidsecondsem.domain.location.useCase.GetLocationUseCase
 import com.example.androidsecondsem.domain.weather.useCase.GetWeatherByNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,47 +43,53 @@ class SearchViewModel @Inject constructor(
     val navigation: SingleLiveEvent<Int?>
         get() = _navigation
 
+    var disposable: CompositeDisposable = CompositeDisposable()
+
     fun onWeatherClick(weatherResponse: WeatherResponse) {
         val cityId: Int = weatherResponse.id
-        if (cityId != null) {
-            _navigation.value = cityId
-        }
+        _navigation.postValue(cityId)
     }
 
     fun loadWeather(name: String) {
-        viewModelScope.launch {
-            try {
-                if (!getWeatherByNameUseCase(name).id.toString().isNullOrEmpty())
-                    _navigation.value = getWeatherByNameUseCase(name).id
-            }
-            catch (error: Throwable) {
-                _error.value = error
-            }
-        }
+        disposable += getWeatherByNameUseCase(name)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(onSuccess = { weatherInfo ->
+                _navigation.postValue(weatherInfo.id)
+            }, onError = { error ->
+                _error.postValue(error)
+            })
     }
 
-    suspend fun locationPerm(res: Boolean) {
+    fun locationPerm(res: Boolean) {
         if (res) {
             getLocation()
         } else {
-            _location.value = UserLocationModel(
+            _location.postValue(UserLocationModel(
                 latitude = 54.5299,
                 longitude = 52.8039,
-            )
+            ))
         }
     }
 
-    private suspend fun getLocation() {
-        _location.value = getLocationUseCase.invoke()
+    private fun getLocation() {
+        disposable += getLocationUseCase.invoke()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { locationInfo ->
+                _location.postValue(locationInfo)
+            }
     }
 
-    suspend fun getCities(latitude: Double?, longitude: Double?) {
-        _citiesList.value = getCitiesUseCase.invoke(latitude, longitude).list
-        Log.e("location", latitude.toString())
+    fun getCities(latitude: Double?, longitude: Double?) {
+        disposable += getCitiesUseCase.invoke(latitude, longitude)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { citiesInfo ->
+                _citiesList.postValue(citiesInfo.list)
+            }
     }
 
     override fun onCleared() {
         super.onCleared()
+        disposable.clear()
     }
 
     companion object {

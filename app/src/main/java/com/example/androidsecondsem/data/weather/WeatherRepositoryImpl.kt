@@ -1,55 +1,39 @@
 package com.example.androidsecondsem.data.weather
 
+import com.example.androidsecondsem.data.weather.mappers.toCitiesInfo
+import com.example.androidsecondsem.data.weather.mappers.toWeatherInfo
 import com.example.androidsecondsem.domain.weather.model.WeatherInfo
-import com.example.androidsecondsem.data.weather.response.City
 import com.example.androidsecondsem.data.weather.response.WeatherApi
 import com.example.androidsecondsem.domain.weather.model.CitiesListInfo
 import com.example.androidsecondsem.domain.weather.repository.WeatherRepository
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class WeatherRepositoryImpl(
     private val api: WeatherApi
 ): WeatherRepository {
 
-    override suspend fun getWeatherByName(name: String): WeatherInfo {
-        val response = api.getWeatherByName(name)
-        return WeatherInfo(
-            id = response.id,
-            name = response.name,
-            icon = response.weather[0].icon,
-            weatherDescription = response.weather[0].description,
-            temperature = response.main.temp,
-            wind = response.wind.deg,
-            clouds = response.clouds.all.toString() + "%"
-        )
-    }
+    override fun getWeatherByName(name: String): Single<WeatherInfo> =
+        api.getWeatherByName(name)
+            .map {
+                it.toWeatherInfo()
+            }
+            .subscribeOn(Schedulers.io())
 
-    override suspend fun getWeatherById(id: String): WeatherInfo {
-        val response = api.getWeatherById(id)
-        return WeatherInfo(
-            id = response.id,
-            name = response.name,
-            icon = response.weather[0].icon,
-            weatherDescription = response.weather[0].description,
-            temperature = response.main.temp,
-            wind = response.wind.deg,
-            clouds = response.clouds.all.toString() + "%"
-        )
-    }
+    override fun getWeatherById(id: String): Single<WeatherInfo> =
+        api.getWeatherById(id)
+            .map {
+                it.toWeatherInfo()
+            }
+            .subscribeOn(Schedulers.io())
 
-    override suspend fun getCities(
+    override fun getCities(
         lat: Double?,
         lon: Double?,
-    ): CitiesListInfo =  api.getCities(lat, lon, 10).toCitiesInfo()
-
-    private fun convertCity(city: City): WeatherInfo {
-        return WeatherInfo(
-            id = city.id,
-            name = city.name,
-            icon = city.weather[0].icon,
-            weatherDescription = city.weather[0].description,
-            temperature = city.main.temp,
-            wind = city.wind.deg,
-            clouds = city.clouds.toString() + "%"
-        )
-    }
+    ): Single<CitiesListInfo> =
+        api.getCities(lat, lon, 10)
+            .map {
+                it.toCitiesInfo()
+            }
+            .subscribeOn(Schedulers.io())
 }
