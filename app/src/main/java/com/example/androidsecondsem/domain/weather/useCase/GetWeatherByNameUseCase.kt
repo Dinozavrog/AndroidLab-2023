@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 
 class GetWeatherByNameUseCase(
     private val weatherRepository: WeatherRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(name: String): WeatherInfo {
         return withContext(dispatcher) {

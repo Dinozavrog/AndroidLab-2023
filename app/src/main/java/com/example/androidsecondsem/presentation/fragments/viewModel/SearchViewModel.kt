@@ -1,6 +1,7 @@
 package com.example.androidsecondsem.presentation.fragments.viewModel
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -41,18 +42,22 @@ class SearchViewModel @Inject constructor(
     val navigation: SingleLiveEvent<Int?>
         get() = _navigation
 
+    private val _name = SingleLiveEvent<String?>()
+    val name: SingleLiveEvent<String?>
+        get() = _name
+
     fun onWeatherClick(weatherResponse: WeatherResponse) {
         val cityId: Int = weatherResponse.id
-        if (cityId != null) {
-            _navigation.value = cityId
-        }
+        _navigation.value = cityId
     }
 
     fun loadWeather(name: String) {
         viewModelScope.launch {
             try {
-                if (!getWeatherByNameUseCase(name).id.toString().isNullOrEmpty())
+                if (!getWeatherByNameUseCase(name).id.toString().isNullOrEmpty()) {
                     _navigation.value = getWeatherByNameUseCase(name).id
+                    _name.value = getWeatherByNameUseCase(name).name
+                }
             }
             catch (error: Throwable) {
                 _error.value = error
@@ -71,6 +76,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    @VisibleForTesting
     private suspend fun getLocation() {
         _location.value = getLocationUseCase.invoke()
     }
